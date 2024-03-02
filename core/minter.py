@@ -25,9 +25,7 @@ class Minter:
     async def _get_mint_data(self) -> Tuple[str]:
         try:
             data = await self.client.send_get_request(
-                url=GET_MINT_PROOF_URL.format(
-                    self.client.address, self.client.get_current_timestamp()
-                )
+                url=GET_MINT_PROOF_URL.format(self.client.address, self.client.get_current_timestamp())
             )
             if data is None:
                 logger.error(f"Wallet {self.client.address}")
@@ -41,7 +39,7 @@ class Minter:
         except Exception as e:
             logger.error(f"Unexpected error while getting mint data: {e}")
 
-    @gas_delay(gas_threshold=GAS_THRESHOLD, gas_delay=GAS_DELAY_RANGE)
+    @gas_delay(gas_threshold=GAS_THRESHOLD, delay_range=GAS_DELAY_RANGE)
     async def mint(self) -> bool:
         mint_data = await self._get_mint_data()
         if mint_data is None:
@@ -60,9 +58,7 @@ class Minter:
                 proof,
             ],
         )
-        tx_hash = await self.client.send_transaction(
-            to=self.mint_contract.address, data=data
-        )
+        tx_hash = await self.client.send_transaction(to=self.mint_contract.address, data=data)
         if tx_hash is None:
             return False
         return await self.client.verify_tx(tx_hash=tx_hash)
